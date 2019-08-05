@@ -1,18 +1,28 @@
+#pragma once
 
 #include <iostream>
 #include "SendARPAgent.cpp"
-#include "NetworkHeader.h"
+#include "../NetworkHeader.h"
 
 class SendARPManager {
 private:
-    SendARPAgent *agentList[128];
+    SendARPAgent* agentList[256]{};
+    int maxAgents;
+
     int agentCount = 0;
 public:
-    void addARPTarget(ARPHeader *arpHeader) {
+    explicit SendARPManager(uint maxAgents=128) {
+        this->maxAgents = maxAgents;
+    }
+
+    bool addARPTarget(ARPHeader *arpHeader) {
+        if (this->maxAgents < this->agentCount)
+            return false;
         auto agent = SendARPAgent(arpHeader->sender_ip, arpHeader->target_ip,
                                   arpHeader->sender_mac, arpHeader->target_mac);
         this->agentList[agentCount] = &agent;
         this->agentCount++;
+        return true;
     }
 
     void sendARPPacket() {

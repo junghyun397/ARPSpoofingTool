@@ -1,3 +1,5 @@
+#pragma once
+
 #ifndef BOB_ARP_SEND_NETWORKHEADER_H
 #define BOB_ARP_SEND_NETWORKHEADER_H
 

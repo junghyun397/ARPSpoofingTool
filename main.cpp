@@ -1,59 +1,28 @@
 #include <iostream>
-#include <pcap/pcap.h>
-#include <netinet/in.h>
-#include "NetworkHeader.h"
-#include "SendARPManager.cpp"
+#include <optional>
+#include "network/NetworkHeader.h"
+#include "network/NetTools.cpp"
+#include "network/ARPAttackAgent.cpp"
 
-auto sendArpManager = SendARPManager();
-
-char* netInterface;
-uint8_t* senderIp;
-uint8_t* targetIp;
-
-uint8_t* strToIP(char *string) {
-    return nullptr;
-}
-
-bool getIsBroadcast(char *string) {
-    return false;
-}
 
 int main(int argc, char* argv[]) {
-    netInterface = argv[0];
-    senderIp = strToIP(argv[1]);
-    targetIp = strToIP(argv[2]);
-}
-
-ARPHeader * findARPPacket(const uint8_t *packet) {
-    auto *etherHeader = (EtherHeader *) packet;
-    if (ntohs(etherHeader->type) == ETHER_TYPE_ARP) {
-        auto *arpHeader = (ARPHeader *) (packet + sizeof(EtherHeader));
-        if (arpHeader->opcode == ARP_OPCODE_REPLY) {
-
-        }
+    if (argc < 1) {
+        std::cout << "Failed load network protocol..." << std::endl;
+        return 1;
     }
-    return nullptr;
-}
 
-void collectTargets() {
-    char errBuf[PCAP_ERRBUF_SIZE];
+    char* netInterface = argv[0];
+    std::optional<uint8_t*> tempSenderIp = NetTools::strToIP(argv[1]);
+    uint8_t* senderIP;
+    auto targetIp = NetTools::strToIP(argv[2]);
+    if (!tempSenderIp) {
+        std::cout << "INFO: Target-ip setting-up as my-ip" << std::endl;
+        senderIP = NetTools::findMyIP();
+    } else senderIP = nullptr;
+    if (!targetIp) std::cout << "WARNING: Broadcast ARP spoofing attack...." << std::endl;
 
-    pcap_t* handle = pcap_open_live(netInterface, BUFSIZ, 1, 1000, errBuf);
-    auto go = true;
-    while (go) {
-        struct pcap_pkthdr* header;
-        const u_char* packet;
-        pcap_next_ex(handle, &header, &packet);
+    auto arpAttackAgent = ARPAttackAgent(netInterface, senderIP, targetIp);
+    arpAttackAgent.scanClients();
 
-        auto arp_header = findARPPacket(packet);
-        std::cout << "Collected ARP Target: " << "some..." << std::endl;
-        sendArpManager.addARPTarget(arp_header);
-    }
-}
-
-void startSendARPPacket() {
-    auto run = true;
-    while (run) {
-        sendArpManager.sendARPPacket();
-    }
+    arpAttackAgent.sendARPAttack(ARPAttackAgent::UNLIMITED);
 }

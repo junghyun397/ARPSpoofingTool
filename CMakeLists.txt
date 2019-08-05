@@ -3,10 +3,10 @@ project(bob_arp_send)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(bob_arp_send main.cpp NetworkHeader.h SendARPAgent.cpp SendARPManager.cpp)
+add_executable(ARPSpoofingTool main.cpp network/NetworkHeader.h network/arp/SendARPAgent.cpp network/arp/SendARPManager.cpp network/NetTools.cpp network/ARPAttackAgent.cpp)
 
-SET(CMAKE_MODULE_PATH "/home/junghyun397/CLionProjects/bob-pacp-test")
+SET(CMAKE_MODULE_PATH "//home/junghyun397/CLionProjects/ARPSpoofingTool")
 
 find_package(PCAP REQUIRED)
 
-target_link_libraries(bob_arp_send ${PCAP_LIBRARY})
+target_link_libraries(ARPSpoofingTool ${PCAP_LIBRARY})
