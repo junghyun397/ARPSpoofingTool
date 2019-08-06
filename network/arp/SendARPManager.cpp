@@ -5,12 +5,14 @@
 
 class SendARPManager {
 private:
+    char* netInetrface;
+
     SendARPAgent* agentList[256]{};
     int agentCount;
 
     int maxAgents;
 public:
-    explicit SendARPManager(uint maxAgents=128): maxAgents(maxAgents) {
+    SendARPManager(char* netInetrface, uint maxAgents=128): netInetrface(netInetrface), maxAgents(maxAgents) {
         this->agentCount = 0;
     }
 

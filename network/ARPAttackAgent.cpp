@@ -1,6 +1,7 @@
 #include <optional>
 #include <netinet/in.h>
 #include <iostream>
+#include <pcap.h>
 #include "arp/SendARPManager.cpp"
 
 class ARPAttackAgent {
@@ -28,18 +29,16 @@ public:
     const static int UNLIMITED = 0;
 
     ARPAttackAgent(char* netInterface, uint8_t* targetIP, std::optional<uint8_t*> senderIP):
-    netInterface(netInterface), targetIP(targetIP) {
+    netInterface(netInterface), targetIP(targetIP), sendArpManager(SendARPManager(netInterface)) {
         if (!senderIP) this->isBroadcast = true;
         else this->singleClient = senderIP.value();
-
-        this->sendArpManager = SendARPManager();
     }
 
     void scanClients() {
         std::cout << "INFO: Start scanning sender clients..." << std::endl;
 
         char errBuf[PCAP_ERRBUF_SIZE];
-        pcap_t* handle = pcap_open_live(netInterface, BUFSIZ, 1, 1000, errBuf);
+        pcap_t* handle = pcap_open_live(this->netInterface, BUFSIZ, 1, 1000, errBuf);
         auto go = true;
         while (go) {
             struct pcap_pkthdr* header;

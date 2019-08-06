@@ -24,6 +24,10 @@ public:
         this->buildPacket();
     }
 
+    int sendARPRequestPacket() {
+        return 0;
+    }
+
     int sendARPPacket() {
         return pcap_sendpacket(this->packet, this->targetPacket, sizeof(this->packet));
     }
