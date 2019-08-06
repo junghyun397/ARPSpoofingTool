@@ -5,7 +5,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_executable(ARPSpoofingTool main.cpp network/NetworkHeader.h network/arp/SendARPAgent.cpp network/arp/SendARPManager.cpp network/NetTools.cpp network/ARPAttackAgent.cpp)
 
-SET(CMAKE_MODULE_PATH "//home/junghyun397/CLionProjects/ARPSpoofingTool")
+SET(CMAKE_MODULE_PATH "//home/junghyun397/CLionProjects/bob_arp_send")
 
 find_package(PCAP REQUIRED)
 

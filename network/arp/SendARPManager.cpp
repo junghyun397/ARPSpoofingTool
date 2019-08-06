@@ -1,18 +1,17 @@
 #pragma once
 
-#include <iostream>
 #include "SendARPAgent.cpp"
 #include "../NetworkHeader.h"
 
 class SendARPManager {
 private:
     SendARPAgent* agentList[256]{};
-    int maxAgents;
+    int agentCount;
 
-    int agentCount = 0;
+    int maxAgents;
 public:
-    explicit SendARPManager(uint maxAgents=128) {
-        this->maxAgents = maxAgents;
+    explicit SendARPManager(uint maxAgents=128): maxAgents(maxAgents) {
+        this->agentCount = 0;
     }
 
     bool addARPTarget(ARPHeader *arpHeader) {
@@ -25,9 +24,9 @@ public:
         return true;
     }
 
-    void sendARPPacket() {
+    int sendARPPacket() {
         int success = 0;
         for (SendARPAgent *agent: this->agentList) success += agent->sendARPPacket();
-        std::cout << "Success send ARP Packet: " << success << " victims" << std::endl;
+        return success;
     }
 };

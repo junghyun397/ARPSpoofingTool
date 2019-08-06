@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstdint>
-#include <iostream>
 #include <pcap.h>
 
 class SendARPAgent {
@@ -13,11 +12,11 @@ private:
     uint8_t* targetMAC;
 
     pcap_t* packet = nullptr;
-    uint8_t* targetPacket{};
+    uint8_t* targetPacket = nullptr;
 
     void buildPacket() {
+        this->packet = nullptr;
         this->targetPacket = nullptr;
-        std::cout << "Build...?" << std::endl;
     }
 public:
     SendARPAgent(uint8_t* senderIP, uint8_t* targetIP, uint8_t* senderMAC, uint8_t* targetMAC):

