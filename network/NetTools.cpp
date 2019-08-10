@@ -1,6 +1,7 @@
 #pragma once
 
 #include <optional>
+#include <cstring>
 
 class NetTools {
 private:
@@ -8,18 +9,15 @@ private:
 
 public:
     static std::optional<uint8_t*> strToIP(char *string) {
-        uint8_t ip[4];
         return {};
     }
 
     static std::optional<char*> ipToStr(uint8_t *ip) {
-        char strIP[15];
         return {};
     }
 
-    static uint8_t* findGateway() {
-        uint8_t gatewayIP[4];
-        return gatewayIP;
+    static uint8_t* findGatewayIP() {
+        return {};
     }
 
     static uint8_t* findMyIP() {
@@ -31,11 +29,11 @@ public:
     }
 
     static bool equalIPAddress(uint8_t* ip1, uint8_t* ip2) {
-        return false;
+        return memcmp(ip1, ip2, sizeof(&ip1));
     }
 
-    static bool equalMacAddress(uint8_t* mac1, uint8_t mac2) {
-        return false;
+    static bool equalMacAddress(uint8_t* mac1, uint8_t* mac2) {
+        return memcmp(mac1, mac2, sizeof(&mac1));
     }
 };
 

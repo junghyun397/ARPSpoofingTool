@@ -24,6 +24,10 @@ public:
         this->buildPacket();
     }
 
+    void relayPacket() {
+
+    }
+
     int sendARPRequestPacket() {
         return 0;
     }
