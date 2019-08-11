@@ -1,7 +1,7 @@
 #pragma once
 
-#ifndef BOB_ARP_SEND_NETWORKHEADER_H
-#define BOB_ARP_SEND_NETWORKHEADER_H
+#ifndef ARPSpoofingTool_NETWORKHEADER_H
+#define ARPSpoofingTool_NETWORKHEADER_H
 
 #include <cstdint>
 
@@ -14,6 +14,31 @@ struct EtherHeader {
     uint8_t d_host[6];
     uint8_t s_host[6];
     uint16_t type;
+};
+
+struct IPHeader{
+    uint8_t ver4_hlen4;
+    uint8_t DSF;
+    uint16_t total_len;
+    uint16_t id;
+    uint16_t frag_offset;
+    uint8_t ttl;
+    uint8_t protocol_type;
+    uint16_t h_checksum;
+    uint32_t src_ip;
+    uint32_t dst_ip;
+};
+
+struct TCPHeader{
+    uint16_t src_port;
+    uint16_t dst_port;
+    uint32_t seq_num;
+    uint32_t ack_num;
+    uint8_t hlen4_rsv4;
+    uint8_t flags;
+    uint16_t wsize;
+    uint16_t checksum;
+    uint16_t urgent_pointer;
 };
 
 struct ARPHeader {

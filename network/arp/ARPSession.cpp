@@ -3,13 +3,15 @@
 #include <cstdint>
 #include <pcap.h>
 
-class SendARPAgent {
+class ARPSession {
 private:
     uint8_t* senderIP;
     uint8_t* targetIP;
 
     uint8_t* senderMAC;
     uint8_t* targetMAC;
+
+    uint8_t* virtualMAC;
 
     pcap_t* packet = nullptr;
     uint8_t* targetPacket = nullptr;
@@ -19,13 +21,16 @@ private:
         this->targetPacket = nullptr;
     }
 public:
-    SendARPAgent(uint8_t* senderIP, uint8_t* targetIP, uint8_t* senderMAC, uint8_t* targetMAC):
-    senderIP(senderIP), targetIP(targetIP), senderMAC(senderMAC), targetMAC(targetMAC) {
+    ARPSession(uint8_t* senderIP, uint8_t* targetIP, uint8_t* senderMAC, uint8_t* targetMAC, uint8_t* virtualMAC):
+    senderIP(senderIP), targetIP(targetIP), senderMAC(senderMAC), targetMAC(targetMAC), virtualMAC(virtualMAC) {
         this->buildPacket();
     }
 
-    void relayPacket() {
+    void recivePacket() {
+        this->relayPacket();
+    }
 
+    void relayPacket() {
     }
 
     int sendARPRequestPacket() {
