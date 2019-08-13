@@ -3,14 +3,15 @@ project(ARPSpoofingTool)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_executable(ARPSpoofingTool main.cpp
+add_executable(ARPSpoofingTool
+        main.cpp
         network/NetworkHeader.h
         network/arp/ARPSession.cpp
-        network/arp/ARPSessionManager.cpp
+        network/arp/ARPSessionAdaptor.cpp
         network/NetTools.cpp
-        network/ARPSpoofingAgent.cpp)
+        network/ARPSpoofingManager.cpp)
 
-SET(CMAKE_MODULE_PATH "//home/junghyun397/CLionProjects/bob_arp_send")
+SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 find_package(PCAP REQUIRED)
 

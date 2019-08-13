@@ -40,4 +40,3 @@ public:
         return memcmp(mac1, mac2, sizeof(&mac1));
     }
 };
-

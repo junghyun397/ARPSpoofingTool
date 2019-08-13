@@ -4,7 +4,7 @@
 #include "ARPSession.cpp"
 #include "../NetworkHeader.h"
 
-class ARPSessionManager {
+class ARPSessionAdaptor {
 private:
     char* netInetrface;
 
@@ -13,7 +13,7 @@ private:
 
     int maxSessions;
 public:
-    ARPSessionManager(char* netInetrface, uint maxSessions=128):
+    ARPSessionAdaptor(char* netInetrface, uint maxSessions=128):
             netInetrface(netInetrface), maxSessions(maxSessions) {
         this->sessionCount = 0;
     }
@@ -21,14 +21,14 @@ public:
     bool addSession(ARPHeader arpHeader) {
         if (this->maxSessions <= this->sessionCount) return false;
 
-        uint8_t* virtualMac;
-        virtualMac = {};
+        uint8_t virtualMac[6];
 
-        auto agent = ARPSession(arpHeader.sender_ip, arpHeader.target_ip,
-                                arpHeader.sender_mac, arpHeader.target_mac, virtualMac);
+        auto session = ARPSession(arpHeader.sender_ip, arpHeader.target_ip,
+                                  arpHeader.sender_mac, arpHeader.target_mac, virtualMac);
+
         this->sessionCount++;
-        this->sessionList.resize(this->sessionCount);
-        this->sessionList[this->sessionCount] = agent;
+        this->sessionList.reserve(this->sessionCount);
+        this->sessionList[this->sessionCount] = session;
         return true;
     }
 

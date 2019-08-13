@@ -2,15 +2,17 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <pcap.h>
-#include "arp/ARPSessionManager.cpp"
+#include "arp/ARPSessionAdaptor.cpp"
 
-class ARPSpoofingAgent {
+class ARPSpoofingManager {
 private:
     char* netInterface;
     std::pair<uint8_t*, uint8_t*>* sessionList;
 
+    uint8_t* gateWay;
+
     bool isBroadcast = false;
-    ARPSessionManager* sendArpManager;
+    ARPSessionAdaptor* sendArpAdaptor;
 
     std::optional<ARPHeader*> processARPPacket(const uint8_t *packet) {
         auto *etherHeader = (EtherHeader *) packet;
@@ -24,11 +26,11 @@ private:
 public:
     const static int UNLIMITED = 0;
 
-    ARPSpoofingAgent(char* netInterface, std::optional<std::pair<uint8_t*, uint8_t*>*> sessionList):
+    ARPSpoofingManager(char* netInterface, std::optional<std::pair<uint8_t*, uint8_t*>*> sessionList):
     netInterface(netInterface) {
         if (sessionList) this->sessionList = sessionList.value();
         else this->isBroadcast = true;
-        this->sendArpManager = new ARPSessionManager(netInterface);
+        this->sendArpAdaptor = new ARPSessionAdaptor(netInterface);
     }
 
     void buildSessions() {
@@ -45,7 +47,7 @@ public:
             auto arpHeader = this->processARPPacket(packet);
 
             if (arpHeader) {
-                if (this->sendArpManager->addSession(*arpHeader.value())) {
+                if (this->sendArpAdaptor->addSession(*arpHeader.value())) {
                     std::cout << "INFO: Collected ARP sender: " << arpHeader.value()->sender_ip << std::endl;
                     go = false;
                 }
@@ -62,7 +64,7 @@ public:
         uint attackCount = 0;
         while (go) {
             std::cout << "[" << attackCount << "]" << " Send attack..." << std::endl;
-            this->sendArpManager->sendARPPacket();
+            this->sendArpAdaptor->sendARPPacket();
             attackCount++;
             if (attackCount > maxAttack and maxAttack != 0) go = false;
         }

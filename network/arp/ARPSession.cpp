@@ -20,6 +20,9 @@ private:
         this->packet = nullptr;
         this->targetPacket = nullptr;
     }
+
+    void relayPacket() {
+    }
 public:
     ARPSession(uint8_t* senderIP, uint8_t* targetIP, uint8_t* senderMAC, uint8_t* targetMAC, uint8_t* virtualMAC):
     senderIP(senderIP), targetIP(targetIP), senderMAC(senderMAC), targetMAC(targetMAC), virtualMAC(virtualMAC) {
@@ -28,9 +31,6 @@ public:
 
     void recivePacket() {
         this->relayPacket();
-    }
-
-    void relayPacket() {
     }
 
     int sendARPRequestPacket() {
