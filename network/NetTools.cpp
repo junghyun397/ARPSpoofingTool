@@ -5,8 +5,11 @@
 
 class NetTools {
 private:
-    static uint8_t myIP;
+    static uint8_t* myIP;
+    static uint8_t* myMAC;
 
+    static uint8_t* gatewayIP;
+    static uint8_t* gatewayMAC;
 public:
     static std::optional<uint8_t*> strToIP(char *string) {
         return {};
@@ -16,15 +19,22 @@ public:
         return {};
     }
 
-    static uint8_t* findGatewayIP() {
+    static uint8_t* getGatewayIP() {
+        if (NetTools::gatewayIP) return NetTools::gatewayIP;
         return {};
     }
 
-    static uint8_t* findMyIP() {
+    static uint8_t* getGatewayMAC() {
+        if (NetTools::gatewayMAC) return NetTools::gatewayMAC;
         return {};
     }
 
-    static uint8_t* findMyMac() {
+    static uint8_t* getMyIP() {
+        if (NetTools::myIP) return NetTools::myIP;
+        return {};
+    }
+
+    static uint8_t* getMyMac() {
         return {};
     }
 

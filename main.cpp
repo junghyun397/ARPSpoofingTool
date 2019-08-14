@@ -22,7 +22,7 @@ int main(int argc, char* argv[]) {
             auto senderIP = NetTools::strToIP(argv[i*2]);
             auto targetIp = NetTools::strToIP(argv[i*2+1]);
             if (!senderIP or !targetIp) {
-                std::cout << "WARNING: invalied session pair : " << argv[i*2] << " <=>" << argv[i*2+1] << std::endl;
+                std::cout << "WARNING: invalid session pair - " << argv[i*2] << " <=> " << argv[i*2+1] << std::endl;
                 return 1;
             }
             std::cout << "INFO: success add session: " << argv[i*2] << "<=>" << argv[i*2+1] << std::endl;

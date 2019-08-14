@@ -29,18 +29,6 @@ struct IPHeader{
     uint32_t dst_ip;
 };
 
-struct TCPHeader{
-    uint16_t src_port;
-    uint16_t dst_port;
-    uint32_t seq_num;
-    uint32_t ack_num;
-    uint8_t hlen4_rsv4;
-    uint8_t flags;
-    uint16_t wsize;
-    uint16_t checksum;
-    uint16_t urgent_pointer;
-};
-
 struct ARPHeader {
     uint16_t hardware_type;
     uint16_t protocol_type;
