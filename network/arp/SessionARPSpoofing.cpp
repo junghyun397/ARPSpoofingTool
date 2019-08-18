@@ -4,47 +4,20 @@
 #include <ctime>
 #include <pcap.h>
 #include "ARPSessionAdaptor.cpp"
+#include "ARPSpoofingInterface.cpp"
 #include "../NetFuncs.cpp"
 
-class ARPSpoofingManager {
+class SessionARPSpoofing: ARPSpoofingInterface {
 private:
     NetFuncs* netFuncs;
     std::pair<uint8_t*, uint8_t*>* sessionList;
 
-    uint8_t* gateWay;
-
-    bool isBroadcast = false;
     ARPSessionAdaptor* arpSessionAdaptor;
-
-    std::optional<ARPHeader*> processARPPacket(const uint8_t *packet) {
-        auto *etherHeader = (EtherHeader *) packet;
-        if (ntohs(etherHeader->type) == ETHER_TYPE_ARP) {
-            auto *arpHeader = (ARPHeader *) (packet + sizeof(EtherHeader));
-            if (arpHeader->op_code == ARP_OPCODE_REPLY) {
-                return (const std::optional<ARPHeader *> &) packet;
-            }
-        }
-        return {};
-    }
-
-    void replyARP(pcap_t *pPacket) {
-
-    }
-
-    void relayIPPacket(pcap_t *pPacket) {
-
-    }
 public:
-    const static int UNLIMITED = 0;
+    explicit SessionARPSpoofing(char* netInterface, std::pair<uint8_t*, uint8_t*>* sessionList):
+    netFuncs(new NetFuncs(netInterface)), sessionList(sessionList), arpSessionAdaptor(new ARPSessionAdaptor(netInterface)) {}
 
-    ARPSpoofingManager(char* netInterface, std::optional<std::pair<uint8_t*, uint8_t*>*> sessionList):
-    netFuncs(new NetFuncs(netInterface)) {
-        if (sessionList) this->sessionList = sessionList.value();
-        else this->isBroadcast = true;
-        this->arpSessionAdaptor = new ARPSessionAdaptor(netInterface);
-    }
-
-    void buildSessions() {
+    void buildSessions() override {
         std::cout << "INFO: Start scanning sender clients..." << std::endl;
 
         char errBuf[PCAP_ERRBUF_SIZE];
@@ -68,18 +41,36 @@ public:
         std::cout << "INFO: Success scanning sender clients" << std::endl;
     }
 
-    void startARPSpoofing(int sessionTime=ARPSpoofingManager::UNLIMITED) {
+    void startARPSpoofing(int sessionTime) override {
         std::cout << "INFO: Start ARP-Spoofing ..." << std::endl;
 
-        auto startTime = std::time(0);
+        auto startTime = std::time(nullptr);
 
         bool go = true;
         while (go) {
-            if (startTime < std::time(0)) go = false;
+            if (startTime < std::time(nullptr)) go = false;
             auto session = this->arpSessionAdaptor->getSession({});
-            if (session) session.value().recivePacket(nullptr);
+            if (session) session.value()->recivePacket(nullptr);
         }
 
         std::cout << "INFO: End ARP-Spoofing::TimeOut" << std::endl;
+    }
+private:
+    std::optional<ARPHeader*> processARPPacket(const uint8_t *packet) {
+        auto *etherHeader = (EtherHeader *) packet;
+        if (ntohs(etherHeader->type) == ETHER_TYPE_ARP) {
+            auto *arpHeader = (ARPHeader *) (packet + sizeof(EtherHeader));
+            if (arpHeader->op_code == ARP_OPCODE_REPLY) {
+                return (const std::optional<ARPHeader *> &) packet;
+            }
+        }
+        return {};
+    }
+
+    void replyARP(pcap_t *pPacket) {
+    }
+
+    void relayIPPacket(pcap_t *pPacket) {
+
     }
 };
