@@ -13,6 +13,8 @@ private:
 
     uint8_t* virtualMAC;
 
+    bool setRelayPacket;
+
     pcap_t* packet = nullptr;
     uint8_t* targetPacket = nullptr;
 
@@ -21,16 +23,19 @@ private:
         this->targetPacket = nullptr;
     }
 
-    void relayPacket(pcap_t* rPacket) {
+    void relayPacket(pcap_t *tPacket) {
 
     }
 public:
-    ARPSession(uint8_t* senderIP, uint8_t* targetIP, uint8_t* senderMAC, uint8_t* targetMAC, uint8_t* virtualMAC):
-    senderIP(senderIP), targetIP(targetIP), senderMAC(senderMAC), targetMAC(targetMAC), virtualMAC(virtualMAC) {
+    ARPSession(uint8_t* senderIP, uint8_t* targetIP, uint8_t* senderMAC, uint8_t* targetMAC,
+            uint8_t* virtualMAC, bool setRelayPacket):
+            senderIP(senderIP), targetIP(targetIP), senderMAC(senderMAC), targetMAC(targetMAC),
+            virtualMAC(virtualMAC), setRelayPacket(setRelayPacket){
         this->buildPacket();
     }
 
-    void recivePacket() {
+    void recivePacket(pcap_t *rPacket) {
+        if (this->setRelayPacket) relayPacket(rPacket);
     }
 
     int sendARPRequestPacket() {
