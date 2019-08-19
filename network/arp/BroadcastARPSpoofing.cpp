@@ -1,6 +1,7 @@
 #pragma once
 
 #include <iostream>
+#include <unistd.h>
 #include "BaseARPSpoofing.cpp"
 
 class BroadcastARPSpoofing: public BaseARPSpoofing {
@@ -24,6 +25,7 @@ public:
             seq++;
             pcap_sendpacket(this->pcapHandle, packet, 0);
             std::cout << "INFO: send broadcast ARP-Spoofing; seq: " << seq << std::endl;
+            sleep(this->sendFeq);
         }
     }
 };

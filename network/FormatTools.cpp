@@ -3,14 +3,18 @@
 #include <optional>
 #include <cstring>
 
-class NetTools {
+class FormatTools {
 public:
-    static std::optional<uint8_t*> strToIP(char *strIP) {
+    static std::optional<uint8_t*> strToIP(char* strIP) {
         char* uintIP[1];
         return {};
     }
 
-    static std::optional<char*> ipToStr(uint8_t *ip) {
+    static std::optional<char*> ipToStr(uint8_t* ip) {
+        return {};
+    }
+
+    static std::optional<int> strToInt(char* strNum) {
         return {};
     }
 
