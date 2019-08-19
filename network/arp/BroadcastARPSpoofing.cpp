@@ -1,14 +1,12 @@
-#include "../NetFuncs.cpp"
-#include "ARPSpoofingInterface.cpp"
+#pragma once
 
-class BroadcastARPSpoofing: ARPSpoofingInterface {
-private:
-    NetFuncs* netFuncs;
+#include "ARPSpoofingManager.cpp"
+
+class BroadcastARPSpoofing: public ARPSpoofingManager {
 public:
-    explicit BroadcastARPSpoofing(char* netInterface): netFuncs(new NetFuncs(netInterface)) {}
+    explicit BroadcastARPSpoofing(char *networkInterface): ARPSpoofingManager(networkInterface) {}
 
     void buildSessions() override {
-
     }
 
     void startARPSpoofing(int sessionTime) override {

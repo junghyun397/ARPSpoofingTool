@@ -1,21 +1,24 @@
+#pragma once
+
 #include <optional>
 #include <netinet/in.h>
 #include <iostream>
 #include <ctime>
 #include <pcap.h>
 #include "ARPSessionAdaptor.cpp"
-#include "ARPSpoofingInterface.cpp"
+#include "ARPSpoofingManager.cpp"
 #include "../NetFuncs.cpp"
 
-class SessionARPSpoofing: ARPSpoofingInterface {
+class SessionARPSpoofing: public ARPSpoofingManager {
 private:
-    NetFuncs* netFuncs;
     std::pair<uint8_t*, uint8_t*>* sessionList;
 
     ARPSessionAdaptor* arpSessionAdaptor;
 public:
-    explicit SessionARPSpoofing(char* netInterface, std::pair<uint8_t*, uint8_t*>* sessionList):
-    netFuncs(new NetFuncs(netInterface)), sessionList(sessionList), arpSessionAdaptor(new ARPSessionAdaptor(netInterface)) {}
+    explicit SessionARPSpoofing(char *networkInterface,
+                                std::pair<uint8_t *, uint8_t *> *sessionList):
+            ARPSpoofingManager(networkInterface), sessionList(sessionList),
+            arpSessionAdaptor(new ARPSessionAdaptor(networkInterface)) {}
 
     void buildSessions() override {
         std::cout << "INFO: Start scanning sender clients..." << std::endl;
@@ -27,15 +30,6 @@ public:
             struct pcap_pkthdr* header;
             const u_char* packet;
             pcap_next_ex(handle, &header, &packet);
-
-            auto arpHeader = this->processARPPacket(packet);
-
-            if (arpHeader) {
-                if (this->arpSessionAdaptor->addSession(*arpHeader.value(), true)) {
-                    std::cout << "INFO: Collected ARP sender: " << arpHeader.value()->sender_ip << std::endl;
-                    go = false;
-                }
-            }
         }
 
         std::cout << "INFO: Success scanning sender clients" << std::endl;
@@ -56,21 +50,9 @@ public:
         std::cout << "INFO: End ARP-Spoofing::TimeOut" << std::endl;
     }
 private:
-    std::optional<ARPHeader*> processARPPacket(const uint8_t *packet) {
-        auto *etherHeader = (EtherHeader *) packet;
-        if (ntohs(etherHeader->type) == ETHER_TYPE_ARP) {
-            auto *arpHeader = (ARPHeader *) (packet + sizeof(EtherHeader));
-            if (arpHeader->op_code == ARP_OPCODE_REPLY) {
-                return (const std::optional<ARPHeader *> &) packet;
-            }
-        }
-        return {};
-    }
-
     void replyARP(pcap_t *pPacket) {
     }
 
     void relayIPPacket(pcap_t *pPacket) {
-
     }
 };

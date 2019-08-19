@@ -11,7 +11,6 @@ public:
     }
 
     static std::optional<char*> ipToStr(uint8_t *ip) {
-        char* strIP[1];
         return {};
     }
 

@@ -9,7 +9,9 @@ add_executable(ARPSpoofingTool
         network/arp/ARPSession.cpp
         network/arp/ARPSessionAdaptor.cpp
         network/NetFuncs.cpp
-        network/arp/SessionARPSpoofing.cpp network/arp/BroadcastARPSpoofing.cpp network/arp/ARPSpoofingInterface.cpp)
+        network/arp/SessionARPSpoofing.cpp
+        network/arp/BroadcastARPSpoofing.cpp
+        network/arp/ARPSpoofingManager.cpp)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
