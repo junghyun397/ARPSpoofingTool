@@ -5,11 +5,11 @@
 
 #include <cstdint>
 
-const uint16_t ETHER_TYPE_ARP =         0x0806;
-const uint16_t ETHER_TYPE_IPV4 =        0x0800;
+const uint16_t ETHER_TYPE_ARP           = 0x0806;
+const uint16_t ETHER_TYPE_IPV4          = 0x0800;
 
-const uint16_t ARP_PROTOCOL_TYPE_IPV4 = 0x0800;
-const uint16_t ARP_OPCODE_REPLY =       0x0020;
+const uint16_t ARP_PROTOCOL_TYPE_IPV4   = 0x0800;
+const uint16_t ARP_OPCODE_REPLY         = 0x0020;
 
 struct EtherHeader {
     uint8_t d_host[6];
@@ -44,7 +44,7 @@ struct ARPHeader {
 
 union ProcessAblePacket {
     ARPHeader* arpHeader;
-    uint8_t* packet;
+    u_char* packet;
 };
 
 #endif

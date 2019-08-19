@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <pcap.h>
+#include "../NetworkHeader.h"
 
 class ARPSession {
 private:
@@ -23,7 +24,7 @@ private:
         this->targetPacket = nullptr;
     }
 
-    void relayPacket(pcap_t *tPacket) {
+    void relayPacket(u_char* tPacket) {
 
     }
 public:
@@ -34,16 +35,11 @@ public:
         this->buildPacket();
     }
 
-    void recivePacket(pcap_t *rPacket) {
+    void reciveARPPacket(ARPHeader *arpHeader) {
+    }
+
+    void recivePacket(u_char* rPacket) {
         if (this->setRelayPacket) relayPacket(rPacket);
-    }
-
-    int sendARPRequestPacket() {
-        return 0;
-    }
-
-    int sendARPPacket() {
-        return pcap_sendpacket(this->packet, this->targetPacket, sizeof(this->packet));
     }
 
     uint8_t* getSenderMacAddress() {

@@ -1,15 +1,29 @@
 #pragma once
 
-#include "ARPSpoofingManager.cpp"
+#include <iostream>
+#include "BaseARPSpoofing.cpp"
 
-class BroadcastARPSpoofing: public ARPSpoofingManager {
-public:
-    explicit BroadcastARPSpoofing(char *networkInterface): ARPSpoofingManager(networkInterface) {}
+class BroadcastARPSpoofing: public BaseARPSpoofing {
+private:
+    int sendFeq = 0;
 
-    void buildSessions() override {
+    u_char* buildBroadcastARPAttackPacket() {
+        return nullptr;
     }
+public:
+    explicit BroadcastARPSpoofing(char *networkInterface, int sendFeq):
+    BaseARPSpoofing(networkInterface), sendFeq(sendFeq) {}
 
     void startARPSpoofing(int sessionTime) override {
+        this->setUpTimer(sessionTime);
 
+        auto packet = buildBroadcastARPAttackPacket();
+
+        uint seq = 0;
+        while (this->isAlive()) {
+            seq++;
+            pcap_sendpacket(this->pcapHandle, packet, 0);
+            std::cout << "INFO: send broadcast ARP-Spoofing; seq: " << seq << std::endl;
+        }
     }
 };

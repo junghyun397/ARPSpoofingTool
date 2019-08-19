@@ -11,11 +11,11 @@ int main(int argc, char* argv[]) {
         return 1;
     } else std::cout << "INFO: network interface at " << argv[1] << std::endl;
 
-    ARPSpoofingManager* arpSpoofingManager;
+    BaseARPSpoofing* arpSpoofingManager;
 
     if (argc == 2) {
         std::cout << "INFO: broadcast ARP-Spoofing..." << std::endl;
-        arpSpoofingManager = new BroadcastARPSpoofing(argv[1]);
+        arpSpoofingManager = new BroadcastARPSpoofing(argv[1], 1);
     } else {
         int pair_count = argc / 2 - 1;
         std::cout << "INFO: total session: " << pair_count << std::endl;
@@ -24,17 +24,17 @@ int main(int argc, char* argv[]) {
             auto senderIP = NetTools::strToIP(argv[i * 2]);
             auto targetIp = NetTools::strToIP(argv[i * 2 + 1]);
             if (!senderIP or !targetIp) {
-                std::cout << "WARNING: invalid session pair: " << argv[i * 2] << " <=> " << argv[i * 2 + 1]
+                std::cout << "ERROR: invalid session pair: " << argv[i * 2] << " <=> " << argv[i * 2 + 1]
                           << std::endl;
                 return 1;
             }
-            std::cout << "INFO: success add session: " << argv[i * 2] << "<=>" << argv[i * 2 + 1] << std::endl;
+            std::cout << "INFO: success parse session: " << argv[i * 2] << "<=>" << argv[i * 2 + 1] << std::endl;
             pairs[i] = std::make_pair(senderIP.value(), targetIp.value());
         }
         arpSpoofingManager = new SessionARPSpoofing(argv[1], pairs);
     }
 
-    arpSpoofingManager->buildSessions();
-    arpSpoofingManager->startARPSpoofing(ARPSpoofingManager::UNLIMITED);
+    arpSpoofingManager->buildPCAPHandle();
+    arpSpoofingManager->startARPSpoofing(10);
     return 0;
 }
