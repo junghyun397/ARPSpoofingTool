@@ -3,33 +3,35 @@
 #include <optional>
 #include <netinet/in.h>
 #include <iostream>
-#include <ctime>
 #include <pcap.h>
 #include "ARPSessionAdaptor.cpp"
 #include "BaseARPSpoofing.cpp"
-#include "../NetFuncs.cpp"
+#include "trigger/BaseTrigger.cpp"
 
 class SessionARPSpoofing: public BaseARPSpoofing {
 private:
     std::pair<uint8_t*, uint8_t*>* sessionList;
+    int sessionCount;
 
     ARPSessionAdaptor* arpSessionAdaptor;
+
+    std::vector<BaseTrigger*> triggers;
 public:
     explicit SessionARPSpoofing(char *networkInterface,
-                                std::pair<uint8_t *, uint8_t *> *sessionList):
-            BaseARPSpoofing(networkInterface), sessionList(sessionList),
+                                std::pair<uint8_t *, uint8_t *> *sessionList, int sessionCount):
+            BaseARPSpoofing(networkInterface), sessionList(sessionList), sessionCount(sessionCount),
             arpSessionAdaptor(new ARPSessionAdaptor(networkInterface)) {}
 
     void buildSession() {
         std::cout << "INFO: Start scanning sender clients..." << std::endl;
-        auto go = true;
-        while (go) {
-            struct pcap_pkthdr* header;
-            const u_char* packet;
-            pcap_next_ex(this->pcapHandle, &header, &packet);
-        }
+        for (int i = 0; i < this->sessionCount; i++) {
 
+        }
         std::cout << "INFO: Success scanning sender clients" << std::endl;
+    }
+
+    void registerTrigger(BaseTrigger* packetTrigger) {
+        this->triggers.push_back(packetTrigger);
     }
 
     void startARPSpoofing(int sessionTime) override {
@@ -53,7 +55,9 @@ public:
                             session.value()->reciveARPPacket(nPacket.value().second.arpHeader);
                             break;
                         case ETHER_TYPE_IPV4:
-                            session.value()->recivePacket(nPacket.value().second.packet);
+                            auto mPacket = nPacket.value().second.packet;
+                            for (auto trigger : this->triggers) trigger->editIPV4Packet(mPacket);
+                            session.value()->recivePacket(mPacket);
                             break;
                     }
                 }

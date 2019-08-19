@@ -40,7 +40,7 @@ int main(int argc, char* argv[]) {
             pairs[i] = std::make_pair(senderIP.value(), targetIp.value());
         }
 
-        arpSpoofingManager = new SessionARPSpoofing(argv[1], pairs);
+        arpSpoofingManager = new SessionARPSpoofing(argv[1], pairs, pair_count);
     }
 
     std::cout << "INFO: start arp-spoofing" << std::endl;
