@@ -45,8 +45,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "INFO: start arp-spoofing" << std::endl;
 
-    arpSpoofingManager->buildPCAPHandle();
-    arpSpoofingManager->startARPSpoofing(10);
+    arpSpoofingManager->startARPSpoofing(BaseARPSpoofing::SESSION_TIME_1M);
 
     std::cout << "INFO: end arp-spoofing; timeout." << std::endl;
     return 0;

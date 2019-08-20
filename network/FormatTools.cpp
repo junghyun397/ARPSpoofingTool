@@ -25,4 +25,9 @@ public:
     static bool equalMacAddress(uint8_t* mac1, uint8_t* mac2) {
         return memcmp(mac1, mac2, sizeof(&mac1));
     }
+
+    static void fillVirtualMac(uint8_t* virtualMac) {
+        for(int i = 0; i < 6; i++) virtualMac[i] = random();
+    }
+
 };

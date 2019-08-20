@@ -3,7 +3,8 @@
 #include <vector>
 #include <map>
 #include "ARPSession.cpp"
-#include "../NetworkHeader.h"
+#include "../../NetworkHeader.h"
+#include "../../FormatTools.cpp"
 
 class ARPSessionAdaptor {
 private:
@@ -21,20 +22,21 @@ public:
 
     bool addSession(ARPHeader arpHeader, bool relayPacket=true) {
         if (this->maxSessions <= this->sessionCount or
-        this->sessionList.find(arpHeader.sender_ip) == this->sessionList.end()) return false;
+        this->sessionList.find(arpHeader.sender_mac) == this->sessionList.end()) return false;
 
         uint8_t virtualMac[6];
+        FormatTools::fillVirtualMac(virtualMac);
 
         auto session = new ARPSession(arpHeader.sender_ip, arpHeader.target_ip,
                                   arpHeader.sender_mac, arpHeader.target_mac, virtualMac, relayPacket);
 
         this->sessionCount++;
-        this->sessionList.insert(std::make_pair(arpHeader.sender_ip, session));
+        this->sessionList.insert(std::make_pair(arpHeader.sender_mac, session));
         return true;
     }
 
-    std::optional<ARPSession*> getSession(uint8_t* tempIP) {
-        if (this->sessionList.find(tempIP) == this->sessionList.end()) return {};
-        return this->sessionList[tempIP];
+    std::optional<ARPSession*> getSession(uint8_t* destMac) {
+        if (this->sessionList.find(destMac) == this->sessionList.end()) return {};
+        return this->sessionList[destMac];
     }
 };

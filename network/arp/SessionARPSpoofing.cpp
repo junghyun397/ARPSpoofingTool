@@ -4,7 +4,7 @@
 #include <netinet/in.h>
 #include <iostream>
 #include <pcap.h>
-#include "ARPSessionAdaptor.cpp"
+#include "session/ARPSessionAdaptor.cpp"
 #include "BaseARPSpoofing.cpp"
 #include "trigger/BaseTrigger.cpp"
 
@@ -22,23 +22,23 @@ public:
             BaseARPSpoofing(networkInterface), sessionList(sessionList), sessionCount(sessionCount),
             arpSessionAdaptor(new ARPSessionAdaptor(networkInterface)) {}
 
+    void registerTrigger(BaseTrigger* packetTrigger) {
+        this->triggers.push_back(packetTrigger);
+    }
+
     void buildSession() {
-        std::cout << "INFO: Start scanning sender clients..." << std::endl;
+        std::cout << "INFO: start scanning sender clients..." << std::endl;
         for (int i = 0; i < this->sessionCount; i++) {
 
         }
-        std::cout << "INFO: Success scanning sender clients" << std::endl;
-    }
-
-    void registerTrigger(BaseTrigger* packetTrigger) {
-        this->triggers.push_back(packetTrigger);
+        std::cout << "INFO: success scanning sender clients" << std::endl;
     }
 
     void startARPSpoofing(int sessionTime) override {
         this->buildSession();
         this->setUpTimer(sessionTime);
 
-        std::cout << "INFO: Start ARP-Spoofing ..." << std::endl;
+        std::cout << "INFO: start arp-spoofing..." << std::endl;
 
         while (this->isAlive()) {
 
@@ -46,24 +46,21 @@ public:
             const u_char* packet;
             pcap_next_ex(this->pcapHandle, &header, &packet);
 
-            auto nPacket = this->processPacket(packet);
-            if (nPacket) {
-                auto session = this->arpSessionAdaptor->getSession(nPacket.value().second.arpHeader->sender_ip);
-                if (session) {
-                    switch (nPacket.value().first) {
-                        case ETHER_TYPE_ARP:
-                            session.value()->reciveARPPacket(nPacket.value().second.arpHeader);
-                            break;
-                        case ETHER_TYPE_IPV4:
-                            auto mPacket = nPacket.value().second.packet;
-                            for (auto trigger : this->triggers) trigger->editIPV4Packet(mPacket);
-                            session.value()->recivePacket(mPacket);
-                            break;
-                    }
-                }
+            auto *etherHeader = (EtherHeader*) packet;
+            switch (ntohs(etherHeader->type)) {
+                case ETHER_TYPE_ARP: {
+                    auto arpHeader = (ARPHeader*) (packet + sizeof(EtherHeader));
+                    auto session = this->arpSessionAdaptor->getSession(etherHeader->d_host);
+                    if (session) session.value()->receiveARPPacket(this->pcapHandle, arpHeader);
+                } break;
+                case ETHER_TYPE_IPV4: {
+                    for (auto trigger: this->triggers) trigger->editIPV4Packet(const_cast<u_char *>(packet));
+                    auto session = this->arpSessionAdaptor->getSession(etherHeader->d_host);
+                    if (session) session.value()->receiveIPV4Packet(this->pcapHandle, const_cast<u_char *>(packet));
+                } break;
             }
         }
 
-        std::cout << "INFO: End ARP-Spoofing::TimeOut" << std::endl;
+        std::cout << "INFO: end arp-spoofing; timeout." << std::endl;
     }
 };

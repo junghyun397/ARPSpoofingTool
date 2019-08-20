@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <pcap.h>
-#include "../NetworkHeader.h"
+#include "../../NetworkHeader.h"
 
 class ARPSession {
 private:
@@ -16,16 +16,13 @@ private:
 
     bool setRelayPacket;
 
-    pcap_t* packet = nullptr;
     uint8_t* targetPacket = nullptr;
 
     void buildPacket() {
-        this->packet = nullptr;
         this->targetPacket = nullptr;
     }
 
-    void relayPacket(u_char* tPacket) {
-
+    void relayPacket(pcap_t* pcapHandle, u_char* tPacket) {
     }
 public:
     ARPSession(uint8_t* senderIP, uint8_t* targetIP, uint8_t* senderMAC, uint8_t* targetMAC,
@@ -35,14 +32,10 @@ public:
         this->buildPacket();
     }
 
-    void reciveARPPacket(ARPHeader *arpHeader) {
+    void receiveARPPacket(pcap_t* pcapHandle, ARPHeader *arpHeader) {
     }
 
-    void recivePacket(u_char* rPacket) {
-        if (this->setRelayPacket) relayPacket(rPacket);
-    }
-
-    uint8_t* getSenderMacAddress() {
-        return this->senderMAC;
+    void receiveIPV4Packet(pcap_t* pcapHandle, u_char* rPacket) {
+        if (this->setRelayPacket) relayPacket(pcapHandle, rPacket);
     }
 };

@@ -6,8 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 add_executable(ARPSpoofingTool
         main.cpp
         network/NetworkHeader.h
-        network/arp/ARPSession.cpp
-        network/arp/ARPSessionAdaptor.cpp
+        network/arp/session/ARPSession.cpp
+        network/arp/session/ARPSessionAdaptor.cpp
         network/NetFuncs.cpp
         network/arp/SessionARPSpoofing.cpp
         network/arp/BroadcastARPSpoofing.cpp

@@ -1,58 +1,52 @@
 #pragma once
 
 #include <netinet/in.h>
-#include <string.h>
-#include <stdlib.h>
-#include <cstdio>
+#include <cstring>
+#include <unistd.h>
+#include <bits/ioctls.h>
+#include <net/if.h>
+#include <stropts.h>
 
 class NetFuncs {
 private:
     char* networkInterface;
 
-    uint8_t* myIP;
-    uint8_t* myMAC;
-
-    uint8_t* gatewayIP;
-    uint8_t* gatewayMAC;
+    uint8_t* myIP[4] = {nullptr, nullptr, nullptr, nullptr};
+    uint8_t* myMAC[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
 public:
-    NetFuncs(char* networkInterface): networkInterface(networkInterface) {
+    explicit NetFuncs(char* networkInterface): networkInterface(networkInterface) {
     }
 
     char* getNetworkInterface() {
         return this->networkInterface;
     }
 
-    uint8_t* getGatewayIP() {
-        if (this->gatewayIP) return this->gatewayIP;
-        return this->gatewayMAC;
-    }
-
-    uint8_t* getGatewayMAC() {
-        if (this->gatewayMAC) return this->gatewayMAC;
-        return this->gatewayMAC;
-    }
-
     uint8_t* getMyIP() {
-        if (this->myIP) return this->myIP;
-        return this->myIP;
+        if (this->myIP[0]) return reinterpret_cast<uint8_t *>(this->myIP);
+
+        struct ifreq ifr{};
+        int fd = socket(AF_INET, SOCK_DGRAM, 0);
+        ifr.ifr_addr.sa_family = AF_INET;
+        strncpy(ifr.ifr_name, this->networkInterface, IFNAMSIZ-1);
+        ioctl(fd, SIOCGIFADDR, &ifr);
+
+        memcpy(this->myIP, &(((struct sockaddr_in *)&ifr.ifr_addr)->sin_addr), 4);
+        close(fd);
+
+        return reinterpret_cast<uint8_t *>(this->myIP);
     }
 
     uint8_t* getMyMac() {
-        if (this->myMAC) return this->myMAC;
+        if (this->myMAC[0]) return reinterpret_cast<uint8_t *>(this->myMAC);
 
-        char tMAC[18]="";
-        char ifPath[256]="/sys/class/net/";
-        strcat(ifPath, this->networkInterface);
-        strcat(ifPath, "/address");
-        FILE *if_f =fopen(ifPath, "r");
-        fread(tMAC, 1, 17, if_f);
-        fclose(if_f);
+        struct ifreq ifr{};
+        int s = socket(AF_INET, SOCK_STREAM, 0);
+        strcpy(ifr.ifr_name, this->networkInterface);
+        ioctl(s, SIOCGIFHWADDR, &ifr);
 
-        return this->myMAC;
+        memcpy(this->myMAC, ifr.ifr_hwaddr.sa_data, 6);
+        close(s);
+
+        return reinterpret_cast<uint8_t *>(this->myMAC);
     }
-
-    void fillVirtualMac(uint8_t* virtualMac) {
-        for(int i = 0; i < 6; i++) virtualMac[i] = random();
-    }
-
 };
