@@ -17,8 +17,8 @@ protected:
     }
 
     bool isAlive() {
-        return !(this->endTime < std::time(nullptr)
-                 and this->endTime != BaseARPSpoofing::SESSION_TIME_UNLIMITED);
+        return this->endTime > std::time(nullptr)
+                 or this->endTime == BaseARPSpoofing::SESSION_TIME_UNLIMITED;
     }
 public:
     explicit BaseARPSpoofing(char* networkInterface): netFuncs(new NetFuncs(networkInterface)) {
@@ -26,7 +26,7 @@ public:
         this->pcapHandle = pcap_open_live(this->netFuncs->getNetworkInterface(), BUFSIZ, 1, 1000, errBuf);
     }
 
-    static const int SESSION_TIME_UNLIMITED = 0;
+    static const int SESSION_TIME_UNLIMITED = -1;
     static const int SESSION_TIME_1M        = 60;
     static const int SESSION_TIME_10M       = 600;
     static const int SESSION_TIME_1H        = 3600;

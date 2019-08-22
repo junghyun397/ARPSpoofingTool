@@ -22,14 +22,32 @@ public:
             BaseARPSpoofing(networkInterface), sessionList(sessionList), sessionCount(sessionCount),
             arpSessionAdaptor(new ARPSessionAdaptor(networkInterface)) {}
 
-    void registerTrigger(BaseTrigger* packetTrigger) {
-        this->triggers.push_back(packetTrigger);
+    void registerTrigger(BaseTrigger* ipv4Trigger) {
+        this->triggers.push_back(ipv4Trigger);
     }
 
     void buildSession() {
         std::cout << "INFO: start scanning sender clients..." << std::endl;
         for (int i = 0; i < this->sessionCount; i++) {
+            auto senderIP = this->sessionList[i].first;
+            auto targetIP = this->sessionList[i].second;
 
+            struct pcap_pkthdr* header;
+            const u_char* packet;
+            pcap_next_ex(this->pcapHandle, &header, &packet);
+
+            uint8_t virtualMAC[6];
+            FormatTools::fillVirtualMac(virtualMAC);
+
+            struct ARPHeader* arpHeader = new ARPHeader();
+            bool find = false;
+            while (find) {
+            }
+
+            if (this->arpSessionAdaptor->addSession(arpHeader, true))
+                std::cout << "INFO: find session " << senderIP << " <=> " << targetIP << "; adaptor paired!"
+                          << std::endl;
+            else std::cout << "WARNING: faild pair session; too much sessions or invaild session" << std::endl;
         }
         std::cout << "INFO: success scanning sender clients" << std::endl;
     }
@@ -41,7 +59,6 @@ public:
         std::cout << "INFO: start arp-spoofing..." << std::endl;
 
         while (this->isAlive()) {
-
             struct pcap_pkthdr* header;
             const u_char* packet;
             pcap_next_ex(this->pcapHandle, &header, &packet);
@@ -51,7 +68,7 @@ public:
                 case ETHER_TYPE_ARP: {
                     auto arpHeader = (ARPHeader*) (packet + sizeof(EtherHeader));
                     auto session = this->arpSessionAdaptor->getSession(etherHeader->d_host);
-                    if (session) session.value()->receiveARPPacket(this->pcapHandle, arpHeader);
+                    if (session) session.value()->receiveARPRequestPacket(this->pcapHandle, arpHeader);
                 } break;
                 case ETHER_TYPE_IPV4: {
                     for (auto trigger: this->triggers) trigger->editIPV4Packet(const_cast<u_char *>(packet));

@@ -20,18 +20,18 @@ public:
         this->sessionCount = 0;
     }
 
-    bool addSession(ARPHeader arpHeader, bool relayPacket=true) {
+    bool addSession(ARPHeader* arpHeader, bool relayPacket=true) {
         if (this->maxSessions <= this->sessionCount or
-        this->sessionList.find(arpHeader.sender_mac) == this->sessionList.end()) return false;
+        this->sessionList.find(arpHeader->sender_mac) == this->sessionList.end()) return false;
 
         uint8_t virtualMac[6];
         FormatTools::fillVirtualMac(virtualMac);
 
-        auto session = new ARPSession(arpHeader.sender_ip, arpHeader.target_ip,
-                                  arpHeader.sender_mac, arpHeader.target_mac, virtualMac, relayPacket);
+        auto session = new ARPSession(arpHeader->sender_ip, arpHeader->target_ip,
+                                  arpHeader->sender_mac, arpHeader->target_mac, virtualMac, relayPacket);
 
         this->sessionCount++;
-        this->sessionList.insert(std::make_pair(arpHeader.sender_mac, session));
+        this->sessionList.insert(std::make_pair(arpHeader->sender_mac, session));
         return true;
     }
 

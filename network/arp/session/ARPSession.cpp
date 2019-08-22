@@ -16,13 +16,11 @@ private:
 
     bool setRelayPacket;
 
-    uint8_t* targetPacket = nullptr;
+    u_char* arpRequestPacket;
 
     void buildPacket() {
-        this->targetPacket = nullptr;
-    }
-
-    void relayPacket(pcap_t* pcapHandle, u_char* tPacket) {
+        struct EtherHeader etherHeader;
+        struct ARPHeader arpHeader;
     }
 public:
     ARPSession(uint8_t* senderIP, uint8_t* targetIP, uint8_t* senderMAC, uint8_t* targetMAC,
@@ -32,10 +30,16 @@ public:
         this->buildPacket();
     }
 
-    void receiveARPPacket(pcap_t* pcapHandle, ARPHeader *arpHeader) {
+    uint8_t* getSenderMAC() {
+        return this->senderMAC;
+    }
+
+    void receiveARPRequestPacket(pcap_t* pcapHandle, ARPHeader *arpHeader) {
+        pcap_sendpacket(pcapHandle, this->arpRequestPacket, 0);
     }
 
     void receiveIPV4Packet(pcap_t* pcapHandle, u_char* rPacket) {
-        if (this->setRelayPacket) relayPacket(pcapHandle, rPacket);
+        if (!this->setRelayPacket) return;
+        pcap_sendpacket(pcapHandle, rPacket, 0);
     }
 };
