@@ -1,20 +1,20 @@
 #include <iostream>
 #include <vector>
-#include "network/FormatTools.cpp"
-#include "network/NetFuncs.cpp"
-#include "network/arp/SessionARPSpoofing.cpp"
-#include "network/arp/BroadcastARPSpoofing.cpp"
+#include "util/FormatTools.cpp"
+#include "util/NetFuncs.cpp"
+#include "spoof/SessionARPSpoofing.cpp"
+#include "spoof/BroadcastARPSpoofing.cpp"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
-        std::cout << "WARNING: failed load network protocol..." << std::endl;
+        std::cout << "WARNING: failed load src protocol..." << std::endl;
         return 1;
-    } else std::cout << "INFO: network interface at " << argv[1] << std::endl;
+    } else std::cout << "INFO: src interface at " << argv[1] << std::endl;
 
     BaseARPSpoofing* arpSpoofingManager;
 
     if (argc < 4) {
-        std::cout << "INFO: broadcast arp-spoofing..." << std::endl;
+        std::cout << "INFO: broadcast spoof-spoofing..." << std::endl;
         int sendFeq = 2;
         if (argc == 3) {
             auto vSendFeq = FormatTools::strToInt(argv[2]);
@@ -43,10 +43,10 @@ int main(int argc, char* argv[]) {
         arpSpoofingManager = new SessionARPSpoofing(argv[1], pairs, pair_count);
     }
 
-    std::cout << "INFO: start arp-spoofing" << std::endl;
+    std::cout << "INFO: start spoof-spoofing" << std::endl;
 
     arpSpoofingManager->startARPSpoofing(BaseARPSpoofing::SESSION_TIME_1M);
 
-    std::cout << "INFO: end arp-spoofing; timeout." << std::endl;
+    std::cout << "INFO: end spoof-spoofing; timeout." << std::endl;
     return 0;
 }

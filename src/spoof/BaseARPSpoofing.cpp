@@ -3,7 +3,7 @@
 #include <optional>
 #include <ctime>
 #include <pcap/pcap.h>
-#include "../NetFuncs.cpp"
+#include "../util/NetFuncs.cpp"
 
 class BaseARPSpoofing {
 private:

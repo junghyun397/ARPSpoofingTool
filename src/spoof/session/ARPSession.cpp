@@ -2,7 +2,7 @@
 
 #include <cstdint>
 #include <pcap.h>
-#include "../../NetworkHeader.h"
+#include "../../util/NetworkHeader.h"
 
 class ARPSession {
 private:

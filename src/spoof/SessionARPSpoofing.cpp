@@ -39,9 +39,10 @@ public:
             uint8_t virtualMAC[6];
             FormatTools::fillVirtualMac(virtualMAC);
 
-            struct ARPHeader* arpHeader = new ARPHeader();
+            auto* arpHeader = new ARPHeader();
             bool find = false;
             while (find) {
+
             }
 
             if (this->arpSessionAdaptor->addSession(arpHeader, true))
@@ -56,7 +57,7 @@ public:
         this->buildSession();
         this->setUpTimer(sessionTime);
 
-        std::cout << "INFO: start arp-spoofing..." << std::endl;
+        std::cout << "INFO: start spoof-spoofing..." << std::endl;
 
         while (this->isAlive()) {
             struct pcap_pkthdr* header;
@@ -78,6 +79,6 @@ public:
             }
         }
 
-        std::cout << "INFO: end arp-spoofing; timeout." << std::endl;
+        std::cout << "INFO: end spoof-spoofing; timeout." << std::endl;
     }
 };

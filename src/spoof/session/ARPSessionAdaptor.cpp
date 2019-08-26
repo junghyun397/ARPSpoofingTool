@@ -3,8 +3,8 @@
 #include <vector>
 #include <map>
 #include "ARPSession.cpp"
-#include "../../NetworkHeader.h"
-#include "../../FormatTools.cpp"
+#include "../../util/NetworkHeader.h"
+#include "../../util/FormatTools.cpp"
 
 class ARPSessionAdaptor {
 private:
