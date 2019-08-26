@@ -1,29 +1,47 @@
 #pragma once
 
 #include <optional>
-#include <cstring>
+#include <arpa/inet.h>
 
 class FormatTools {
 public:
     static std::optional<uint8_t*> strToIP(char* strIP) {
-        char* uintIP[1];
-        return {};
+        uint8_t ip[4];
+        try {
+            inet_pton(AF_INET, strIP, ip);
+            return ip;
+        } catch (error_t error) {
+            return {};
+        }
     }
 
     static std::optional<char*> ipToStr(uint8_t* ip) {
-        return {};
+        char rsStr[15];
+        try {
+            inet_ntop(AF_INET, &(ip), rsStr, INET_ADDRSTRLEN);
+            return rsStr;
+        } catch (error_t error) {
+            return {};
+        }
     }
 
     static std::optional<int> strToInt(char* strNum) {
-        return {};
+        try {
+            return std::stoi(strNum);
+        } catch (error_t error) {
+            return {};
+        }
     }
 
-    static bool equalIPAddress(uint8_t* ip1, uint8_t* ip2) {
-        return memcmp(ip1, ip2, sizeof(&ip1));
+    static bool equalIPAddress(const uint8_t* ip1, const uint8_t* ip2) {
+        return (ip1[3] == ip2[3] and ip1[2] == ip2[2]
+            and ip1[1] == ip2[1] and ip1[0] == ip2[0]);
     }
 
-    static bool equalMacAddress(uint8_t* mac1, uint8_t* mac2) {
-        return memcmp(mac1, mac2, sizeof(&mac1));
+    static bool equalMACAddress(const uint8_t* mac1, const uint8_t* mac2) {
+        return (mac1[5] == mac2[5] and mac1[4] == mac2[4]
+            and mac1[3] == mac2[3] and mac1[2] == mac2[2]
+            and mac1[1] == mac2[1] and mac1[0] == mac2[0]);
     }
 
     static void fillVirtualMac(uint8_t* virtualMac) {

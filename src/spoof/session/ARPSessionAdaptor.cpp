@@ -39,4 +39,11 @@ public:
         if (this->sessionList.find(destMac) == this->sessionList.end()) return {};
         return this->sessionList[destMac];
     }
+
+    ~ARPSessionAdaptor() {
+        free(netInterface);
+        free(&sessionList);
+        free(&sessionCount);
+        free(&maxSessions);
+    }
 };

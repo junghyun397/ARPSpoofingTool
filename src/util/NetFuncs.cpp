@@ -3,9 +3,10 @@
 #include <netinet/in.h>
 #include <cstring>
 #include <unistd.h>
-#include <bits/ioctls.h>
+#include <sys/ioctl.h>
 #include <net/if.h>
 #include <stropts.h>
+#include <malloc.h>
 
 class NetFuncs {
 private:
@@ -48,5 +49,11 @@ public:
         close(s);
 
         return reinterpret_cast<uint8_t *>(this->myMAC);
+    }
+
+    ~NetFuncs() {
+        free(networkInterface);
+        free(myIP);
+        free(myMAC);
     }
 };

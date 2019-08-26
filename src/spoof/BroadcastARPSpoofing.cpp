@@ -28,4 +28,8 @@ public:
             sleep(this->sendFeq);
         }
     }
+
+    ~BroadcastARPSpoofing() {
+        free(&sendFeq);
+    }
 };

@@ -9,7 +9,7 @@ int main(int argc, char* argv[]) {
     if (argc < 2) {
         std::cout << "WARNING: failed load src protocol..." << std::endl;
         return 1;
-    } else std::cout << "INFO: src interface at " << argv[1] << std::endl;
+    } else std::cout << "INFO: network interface at " << argv[1] << std::endl;
 
     BaseARPSpoofing* arpSpoofingManager;
 
@@ -36,7 +36,7 @@ int main(int argc, char* argv[]) {
                           << std::endl;
                 return 1;
             }
-            std::cout << "INFO: success parse session: " << argv[i * 2] << "<=>" << argv[i * 2 + 1] << std::endl;
+            std::cout << "INFO: success parse session: " << "" << "<=>" << argv[i * 2 + 1] << std::endl;
             pairs[i] = std::make_pair(senderIP.value(), targetIp.value());
         }
 
@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
     std::cout << "INFO: start spoof-spoofing" << std::endl;
 
-    arpSpoofingManager->startARPSpoofing(BaseARPSpoofing::SESSION_TIME_1M);
+    arpSpoofingManager->startARPSpoofing(BaseARPSpoofing::SESSION_TIME_UNLIMITED);
 
     std::cout << "INFO: end spoof-spoofing; timeout." << std::endl;
     return 0;

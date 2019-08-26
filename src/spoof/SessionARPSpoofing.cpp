@@ -81,4 +81,11 @@ public:
 
         std::cout << "INFO: end spoof-spoofing; timeout." << std::endl;
     }
+
+    ~SessionARPSpoofing() {
+        free(sessionList);
+        free(&sessionCount);
+        free(arpSessionAdaptor);
+        free(&triggers);
+    }
 };
