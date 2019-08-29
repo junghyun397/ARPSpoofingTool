@@ -16,6 +16,7 @@ private:
     ARPSessionAdaptor* arpSessionAdaptor;
 
     std::vector<BaseTrigger*> triggers;
+
 public:
     explicit SessionARPSpoofing(char *networkInterface,
                                 std::pair<uint8_t *, uint8_t *> *sessionList, int sessionCount):
@@ -39,17 +40,16 @@ public:
             uint8_t virtualMAC[6];
             FormatTools::fillVirtualMac(virtualMAC);
 
-            auto* arpHeader = new ARPHeader();
-            bool find = false;
-            while (find) {
+            auto arpHeader = this->netFuncs->findTargetByIP(senderIP);
 
-            }
-
-            if (this->arpSessionAdaptor->addSession(arpHeader, true))
+            if (!arpHeader) {
+                std::cout << "WARNING: failed pair session; invalid target ip" << std::endl;
+            } else if (this->arpSessionAdaptor->addSession(arpHeader.value(), true))
                 std::cout << "INFO: find session " << senderIP << " <=> " << targetIP << "; adaptor paired!"
                           << std::endl;
-            else std::cout << "WARNING: faild pair session; too much sessions or invaild session" << std::endl;
+            else std::cout << "WARNING: failed pair session; too much sessions" << std::endl;
         }
+
         std::cout << "INFO: success scanning sender clients" << std::endl;
     }
 
@@ -72,9 +72,11 @@ public:
                     if (session) session.value()->receiveARPRequestPacket(this->pcapHandle, arpHeader);
                 } break;
                 case ETHER_TYPE_IPV4: {
-                    for (auto trigger: this->triggers) trigger->editIPV4Packet(const_cast<u_char *>(packet));
                     auto session = this->arpSessionAdaptor->getSession(etherHeader->d_host);
-                    if (session) session.value()->receiveIPV4Packet(this->pcapHandle, const_cast<u_char *>(packet));
+                    if (session) {
+                        for (auto trigger: this->triggers) trigger->editIPV4Packet(const_cast<u_char *>(packet));
+                        session.value()->receiveIPV4Packet(this->pcapHandle, const_cast<u_char *>(packet));
+                    }
                 } break;
             }
         }

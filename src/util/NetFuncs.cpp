@@ -6,7 +6,9 @@
 #include <sys/ioctl.h>
 #include <net/if.h>
 #include <stropts.h>
-#include <malloc.h>
+#include <optional>
+
+#include "../util/NetworkHeader.h"
 
 class NetFuncs {
 private:
@@ -51,9 +53,10 @@ public:
         return reinterpret_cast<uint8_t *>(this->myMAC);
     }
 
-    ~NetFuncs() {
-        free(networkInterface);
-        free(myIP);
-        free(myMAC);
+    std::optional<ARPHeader*> findTargetByIP(uint8_t* ip) {
+        struct ARPHeader* arpHeader{};
+
+
+        return arpHeader;
     }
 };
