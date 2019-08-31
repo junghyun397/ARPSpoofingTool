@@ -14,11 +14,10 @@ class NetFuncs {
 private:
     char* networkInterface;
 
-    uint8_t* myIP[4] = {nullptr, nullptr, nullptr, nullptr};
-    uint8_t* myMAC[6] = {nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+    uint8_t* myIP[4];
+    uint8_t* myMAC[6];
 public:
-    explicit NetFuncs(char* networkInterface): networkInterface(networkInterface) {
-    }
+    explicit NetFuncs(char* networkInterface): networkInterface(networkInterface) {}
 
     char* getNetworkInterface() {
         return this->networkInterface;

@@ -24,11 +24,8 @@ public:
         if (this->maxSessions <= this->sessionCount or
         this->sessionList.find(arpHeader->sender_mac) == this->sessionList.end()) return false;
 
-        uint8_t virtualMac[6];
-        FormatTools::fillVirtualMac(virtualMac);
-
         auto session = new ARPSession(arpHeader->sender_ip, arpHeader->target_ip,
-                                  arpHeader->sender_mac, arpHeader->target_mac, virtualMac, relayPacket);
+                arpHeader->sender_mac, arpHeader->target_mac, FormatTools::buildVirtualMac(), relayPacket);
 
         this->sessionCount++;
         this->sessionList.insert(std::make_pair(arpHeader->sender_mac, session));
@@ -38,12 +35,5 @@ public:
     std::optional<ARPSession*> getSession(uint8_t* destMac) {
         if (this->sessionList.find(destMac) == this->sessionList.end()) return {};
         return this->sessionList[destMac];
-    }
-
-    ~ARPSessionAdaptor() {
-        free(netInterface);
-        free(&sessionList);
-        free(&sessionCount);
-        free(&maxSessions);
     }
 };

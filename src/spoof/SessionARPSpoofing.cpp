@@ -10,8 +10,7 @@
 
 class SessionARPSpoofing: public BaseARPSpoofing {
 private:
-    std::pair<uint8_t*, uint8_t*>* sessionList;
-    int sessionCount;
+    std::vector<std::pair<uint8_t*, uint8_t*>> sessionList;
 
     ARPSessionAdaptor* arpSessionAdaptor;
 
@@ -19,8 +18,8 @@ private:
 
 public:
     explicit SessionARPSpoofing(char *networkInterface,
-                                std::pair<uint8_t *, uint8_t *> *sessionList, int sessionCount):
-            BaseARPSpoofing(networkInterface), sessionList(sessionList), sessionCount(sessionCount),
+                                std::vector<std::pair<uint8_t *, uint8_t *>> sessionList):
+            BaseARPSpoofing(networkInterface), sessionList(sessionList),
             arpSessionAdaptor(new ARPSessionAdaptor(networkInterface)) {}
 
     void registerTrigger(BaseTrigger* ipv4Trigger) {
@@ -29,16 +28,13 @@ public:
 
     void buildSession() {
         std::cout << "INFO: start scanning sender clients..." << std::endl;
-        for (int i = 0; i < this->sessionCount; i++) {
-            auto senderIP = this->sessionList[i].first;
-            auto targetIP = this->sessionList[i].second;
+        for (auto session: this->sessionList) {
+            auto senderIP = session.first;
+            auto targetIP = session.second;
 
             struct pcap_pkthdr* header;
             const u_char* packet;
             pcap_next_ex(this->pcapHandle, &header, &packet);
-
-            uint8_t virtualMAC[6];
-            FormatTools::fillVirtualMac(virtualMAC);
 
             auto arpHeader = this->netFuncs->findTargetByIP(senderIP);
 
@@ -82,12 +78,5 @@ public:
         }
 
         std::cout << "INFO: end spoof-spoofing; timeout." << std::endl;
-    }
-
-    ~SessionARPSpoofing() {
-        free(sessionList);
-        free(&sessionCount);
-        free(arpSessionAdaptor);
-        free(&triggers);
     }
 };
