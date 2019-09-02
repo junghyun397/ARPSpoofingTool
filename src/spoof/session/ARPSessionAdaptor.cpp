@@ -33,7 +33,7 @@ public:
     }
 
     std::optional<ARPSession*> getSession(uint8_t* destMac) {
-        if (this->sessionList.find(destMac) == this->sessionList.end()) return {};
-        return this->sessionList[destMac];
+        if (this->sessionList.count(destMac)) return this->sessionList[destMac];
+        return {};
     }
 };

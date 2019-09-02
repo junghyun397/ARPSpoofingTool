@@ -3,38 +3,34 @@
 #include <optional>
 #include <netinet/in.h>
 #include <iostream>
+#include <utility>
 #include <pcap.h>
 #include "session/ARPSessionAdaptor.cpp"
-#include "BaseARPSpoofing.cpp"
-#include "trigger/BaseTrigger.cpp"
+#include "IBaseARPSpoofing.cpp"
+#include "trigger/IBaseTrigger.cpp"
 
-class SessionARPSpoofing: public BaseARPSpoofing {
+class SessionARPSpoofing: public IBaseARPSpoofing {
 private:
-    std::vector<std::pair<uint8_t*, uint8_t*>> sessionList;
-
     ARPSessionAdaptor* arpSessionAdaptor;
 
-    std::vector<BaseTrigger*> triggers;
-
+    std::vector<IBaseTrigger*> triggers;
 public:
     explicit SessionARPSpoofing(char *networkInterface,
-                                std::vector<std::pair<uint8_t *, uint8_t *>> sessionList):
-            BaseARPSpoofing(networkInterface), sessionList(sessionList),
-            arpSessionAdaptor(new ARPSessionAdaptor(networkInterface)) {}
+                                const std::vector<std::pair<uint8_t *, uint8_t *>>& sessionList):
+            IBaseARPSpoofing(networkInterface),
+            arpSessionAdaptor(new ARPSessionAdaptor(networkInterface)) {
+        this->buildSession(sessionList);
+    }
 
-    void registerTrigger(BaseTrigger* ipv4Trigger) {
+    void registerTrigger(IBaseTrigger* ipv4Trigger) {
         this->triggers.push_back(ipv4Trigger);
     }
 
-    void buildSession() {
+    void buildSession(const std::vector<std::pair<uint8_t*, uint8_t*>>& sessionList) {
         std::cout << "INFO: start scanning sender clients..." << std::endl;
-        for (auto session: this->sessionList) {
+        for (auto session: sessionList) {
             auto senderIP = session.first;
             auto targetIP = session.second;
-
-            struct pcap_pkthdr* header;
-            const u_char* packet;
-            pcap_next_ex(this->pcapHandle, &header, &packet);
 
             auto arpHeader = this->netFuncs->findTargetByIP(senderIP);
 
@@ -50,7 +46,6 @@ public:
     }
 
     void startARPSpoofing(int sessionTime) override {
-        this->buildSession();
         this->setUpTimer(sessionTime);
 
         std::cout << "INFO: start spoof-spoofing..." << std::endl;

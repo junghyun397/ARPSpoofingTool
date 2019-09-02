@@ -3,9 +3,9 @@
 #include <optional>
 #include <ctime>
 #include <pcap/pcap.h>
-#include "../util/NetFuncs.cpp"
+#include "../util/NetTools.cpp"
 
-class BaseARPSpoofing {
+class IBaseARPSpoofing {
 private:
     long endTime = 0;
 protected:
@@ -18,10 +18,10 @@ protected:
 
     bool isAlive() {
         return this->endTime > std::time(nullptr)
-                 or this->endTime == BaseARPSpoofing::SESSION_TIME_UNLIMITED;
+                 or this->endTime == IBaseARPSpoofing::SESSION_TIME_UNLIMITED;
     }
 public:
-    explicit BaseARPSpoofing(char* networkInterface): netFuncs(new NetFuncs(networkInterface)) {
+    explicit IBaseARPSpoofing(char* networkInterface): netFuncs(new NetFuncs(networkInterface)) {
         char errBuf[PCAP_ERRBUF_SIZE];
         this->pcapHandle = pcap_open_live(this->netFuncs->getNetworkInterface(), BUFSIZ, 1, 1000, errBuf);
     }

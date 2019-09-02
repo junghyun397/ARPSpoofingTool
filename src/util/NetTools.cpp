@@ -14,8 +14,8 @@ class NetFuncs {
 private:
     char* networkInterface;
 
-    uint8_t* myIP[4];
-    uint8_t* myMAC[6];
+    uint8_t* myIP[4]{};
+    uint8_t* myMAC[6]{};
 public:
     explicit NetFuncs(char* networkInterface): networkInterface(networkInterface) {}
 

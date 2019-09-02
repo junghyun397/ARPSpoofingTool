@@ -1,9 +1,10 @@
 #include <iostream>
 #include <vector>
 #include "util/FormatTools.cpp"
-#include "util/NetFuncs.cpp"
+#include "util/NetTools.cpp"
 #include "spoof/SessionARPSpoofing.cpp"
 #include "spoof/BroadcastARPSpoofing.cpp"
+#include "spoof/trigger/DNSSpoofingTrigger.cpp"
 
 int main(int argc, char* argv[]) {
     if (argc < 2) {
@@ -11,7 +12,7 @@ int main(int argc, char* argv[]) {
         return 1;
     } else std::cout << "INFO: network-interface at " << argv[1] << std::endl;
 
-    BaseARPSpoofing* arpSpoofingManager;
+    IBaseARPSpoofing* arpSpoofingManager;
 
     if (argc < 4) {
         std::cout << "INFO: broadcast arp-spoofing..." << std::endl;
@@ -40,12 +41,17 @@ int main(int argc, char* argv[]) {
             sessionList[i - 1] = std::make_pair(senderIP.value(), targetIp.value());
         }
 
-        arpSpoofingManager = new SessionARPSpoofing(argv[1], sessionList);
+        auto sessionARPSpoofing = new SessionARPSpoofing(argv[1], sessionList);
+
+        char targetDNSServer[] = "8.8.8.8";
+        sessionARPSpoofing->registerTrigger(new DNSSpoofingTrigger(targetDNSServer));
+
+        arpSpoofingManager = sessionARPSpoofing;
     }
 
     std::cout << "INFO: start spoof-spoofing" << std::endl;
 
-    arpSpoofingManager->startARPSpoofing(BaseARPSpoofing::SESSION_TIME_10M);
+    arpSpoofingManager->startARPSpoofing(IBaseARPSpoofing::SESSION_TIME_10M);
 
     std::cout << "INFO: end spoof-spoofing; timeout." << std::endl;
     return 0;

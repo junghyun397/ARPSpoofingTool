@@ -2,9 +2,9 @@
 
 #include <iostream>
 #include <unistd.h>
-#include "BaseARPSpoofing.cpp"
+#include "IBaseARPSpoofing.cpp"
 
-class BroadcastARPSpoofing: public BaseARPSpoofing {
+class BroadcastARPSpoofing: public IBaseARPSpoofing {
 private:
     int sendFeq = 0;
 
@@ -13,7 +13,7 @@ private:
     }
 public:
     explicit BroadcastARPSpoofing(char *networkInterface, int sendFeq):
-    BaseARPSpoofing(networkInterface), sendFeq(sendFeq) {}
+            IBaseARPSpoofing(networkInterface), sendFeq(sendFeq) {}
 
     void startARPSpoofing(int sessionTime) override {
         this->setUpTimer(sessionTime);
@@ -27,9 +27,5 @@ public:
             std::cout << "INFO: send broadcast ARP-Spoofing; seq: " << seq << std::endl;
             sleep(this->sendFeq);
         }
-    }
-
-    ~BroadcastARPSpoofing() {
-        free(&sendFeq);
     }
 };

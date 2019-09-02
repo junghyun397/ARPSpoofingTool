@@ -8,11 +8,11 @@ add_executable(ARPSpoofingTool
         src/util/NetworkHeader.h
         src/spoof/session/ARPSession.cpp
         src/spoof/session/ARPSessionAdaptor.cpp
-        src/util/NetFuncs.cpp
+        src/util/NetTools.cpp
         src/spoof/SessionARPSpoofing.cpp
         src/spoof/BroadcastARPSpoofing.cpp
-        src/spoof/BaseARPSpoofing.cpp
-        src/spoof/trigger/BaseTrigger.cpp)
+        src/spoof/IBaseARPSpoofing.cpp
+        src/spoof/trigger/IBaseTrigger.cpp src/spoof/trigger/DNSSpoofingTrigger.cpp)
 
 SET(CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
