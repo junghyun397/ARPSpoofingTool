@@ -1,20 +1,21 @@
 #pragma once
 
+#include <memory>
 #include <optional>
 #include <arpa/inet.h>
 
 class FormatTools {
 public:
-    static std::optional<uint8_t*> strToIP(char* strIP) {
-        uint8_t *ip = (uint8_t*) malloc(sizeof(uint8_t)*4);
-        inet_pton(AF_INET, strIP, ip);
-        if (ip[0] == 0) return {};
+    static std::optional<std::unique_ptr<uint8_t*>> strToIP(char* strIP) {
+        auto ip = std::make_unique<uint8_t*>(uint8_t{4});
+        inet_pton(AF_INET, strIP, &ip);
+        if ((&ip)[0] == nullptr) return {};
         else return ip;
     }
 
-    static std::optional<char*> ipToStr(uint8_t* ip) {
-        char *rsStr = (char*) malloc(sizeof(char)*15);
-        inet_ntop(AF_INET, &(ip), rsStr, INET_ADDRSTRLEN);
+    static std::optional<std::string> ipToStr(std::unique_ptr<uint8_t *> ip) {
+        auto rsStr = (char*) malloc(sizeof(char)*15);
+        inet_ntop(AF_INET, &ip, rsStr, INET_ADDRSTRLEN);
         if (rsStr[0] == 0) return {};
         else return rsStr;
     }
@@ -23,8 +24,8 @@ public:
         try {
             int result = std::stoi(strNum);
             if (result < 0) return {};
-            else return std::stoi(strNum);
-        } catch (std::invalid_argument error) {
+            else return result;
+        } catch (std::invalid_argument &error) {
             return {};
         }
     }
@@ -41,7 +42,7 @@ public:
     }
 
     static uint8_t* buildVirtualMac() {
-        uint8_t *virtualMAC = (uint8_t*) malloc(sizeof(uint8_t)*6);
+        auto *virtualMAC = (uint8_t*) malloc(sizeof(uint8_t)*6);
         for(int i = 0; i < 6; i++) virtualMAC[i] = random();
         return virtualMAC;
     }

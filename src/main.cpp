@@ -28,7 +28,7 @@ int main(int argc, char* argv[]) {
     } else {
         int pair_count = argc / 2 - 1;
         std::cout << "INFO: total sessions: " << pair_count << std::endl;
-        auto sessionList = std::vector<std::pair<uint8_t*, uint8_t*>>(pair_count);
+        auto sessionList = std::vector<uint8_t*, uint8_t*>(pair_count);
         for (int i = 1; pair_count + 1 > i; i++) {
             auto senderIP = FormatTools::strToIP(argv[i * 2]);
             auto targetIp = FormatTools::strToIP(argv[i * 2 + 1]);
@@ -37,7 +37,9 @@ int main(int argc, char* argv[]) {
                           << std::endl;
                 return 1;
             }
-            std::cout << "INFO: success parse session-pair: " << argv[i * 2] << " <=> " << argv[i * 2 + 1] << std::endl;
+            std::cout << "INFO: success parse session-pair: "
+                << FormatTools::ipToStr(senderIP.value()).value()
+                << " <=> " << FormatTools::ipToStr(targetIp.value()).value() << std::endl;
             sessionList[i - 1] = std::make_pair(senderIP.value(), targetIp.value());
         }
 
